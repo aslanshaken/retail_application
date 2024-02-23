@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  product_id: 1
+  request_date: 2024-02-23 12:19:22
+  approval_status: MyString
+
+two:
+  product_id: 1
+  request_date: 2024-02-23 12:19:22
+  approval_status: MyString

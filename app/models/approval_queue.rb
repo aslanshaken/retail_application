@@ -1,0 +1,2 @@
+class ApprovalQueue < ApplicationRecord
+end
