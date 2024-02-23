@@ -20,4 +20,31 @@ class Api::ProductsController < ApplicationController
 
     render json: @products
   end
+
+  def create
+    # Create a new product with the provided parameters
+    @product = Product.new(product_params)
+
+    # Set status based on price
+    if @product.price > 10000
+      render json: { error: "Price exceeds the maximum allowed amount of $10,000" }, status: :unprocessable_entity
+      return
+    elsif @product.price > 5000
+      @product.status = 'pending_approval'
+    else
+      @product.status = 'active'
+    end
+
+    # Check if the product is valid and save it
+    if @product.save
+      render json: @product, status: :created
+    else
+      render json: @product.errors, status: :unprocessable_entity
+    end
+  end
+
+  private
+  def product_params
+    params.require(:product).permit(:name, :price)
+  end
 end
