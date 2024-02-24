@@ -1,6 +1,6 @@
 class Api::ProductsController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [:create, :update]
-  before_action :set_product, only: [:update]
+  skip_before_action :verify_authenticity_token, only: [:create, :update, :destroy]
+  before_action :set_product, only: [:update, :destroy]
 
   def index
     # Get http://localhost:3000/api/products
@@ -64,6 +64,19 @@ class Api::ProductsController < ApplicationController
 
     if @product.save
       render json: @product, status: :ok
+    else
+      render json: @product.errors, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    # Delete http://localhost:3000/api/products/:id
+
+    @product.status = 'pending_approval'
+    
+    if @product.save
+      @product.destroy
+      head :no_content
     else
       render json: @product.errors, status: :unprocessable_entity
     end
