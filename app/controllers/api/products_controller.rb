@@ -1,15 +1,16 @@
 class Api::ProductsController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [:create]
+  skip_before_action :verify_authenticity_token, only: [:create, :update]
+  before_action :set_product, only: [:update]
 
   def index
-    # EX Get http://localhost:3000/api/products
+    # Get http://localhost:3000/api/products
 
     @products = Product.where(status: 'active').order(created_at: :desc)
     render json: @products
   end
 
   def search
-    # EX Get http://localhost:3000/api/products/search?productName=Fake Product 1
+    # Get http://localhost:3000/api/products/search?productName=FakeProduct1
 
     @products = Product.where(nil)
     @products = @products.where('name LIKE ?', "%#{params[:productName]}%") if params[:productName].present?
@@ -20,7 +21,7 @@ class Api::ProductsController < ApplicationController
   end
 
   def create
-    # EX Post http://localhost:3000/api/products
+    # Post http://localhost:3000/api/products
     # {
     #     "product": {
     #         "name": "Just created fake product",
@@ -46,8 +47,35 @@ class Api::ProductsController < ApplicationController
     end
   end
 
+  def update
+    # Put http://localhost:3000/api/products/:id
+    # {
+    #     "product": {
+    #         "name": "Just updated fake product",
+    #         "price": 100.00
+    #     }
+    # }
+
+    @product.assign_attributes(product_params)
+
+    if @product.price > (@product.price_was * 1.5)
+      @product.status = 'pending_approval'
+    end
+
+    if @product.save
+      render json: @product, status: :ok
+    else
+      render json: @product.errors, status: :unprocessable_entity
+    end
+  end
+
   private
+
+  def set_product
+    @product = Product.find(params[:id])
+  end
+
   def product_params
-    params.require(:product).permit(:name, :price)
+    params.require(:product).permit(:name, :price, :status)
   end
 end
