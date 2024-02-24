@@ -1,19 +1,17 @@
 class Api::ProductsController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: [:create]
+
   def index
-    # EX http://localhost:3000/api/products
+    # EX Get http://localhost:3000/api/products
 
-    # Retrieve active products sorted by the latest first
     @products = Product.where(status: 'active').order(created_at: :desc)
-
     render json: @products
   end
 
   def search
-    #EX http://localhost:3000/api/products/search?productName=Fake Product 1
+    # EX Get http://localhost:3000/api/products/search?productName=Fake Product 1
 
-    # Apply filters based on the provided parameters
-    @products = Product.where(nil) # Start with an all scope
-
+    @products = Product.where(nil)
     @products = @products.where('name LIKE ?', "%#{params[:productName]}%") if params[:productName].present?
     @products = @products.where(price: params[:minPrice]..params[:maxPrice]) if params[:minPrice].present? && params[:maxPrice].present?
     @products = @products.where(created_at: params[:minPostedDate]..params[:maxPostedDate]) if params[:minPostedDate].present? && params[:maxPostedDate].present?
@@ -22,10 +20,16 @@ class Api::ProductsController < ApplicationController
   end
 
   def create
-    # Create a new product with the provided parameters
+    # EX Post http://localhost:3000/api/products
+    # {
+    #     "product": {
+    #         "name": "Just created fake product",
+    #         "price": 100.00
+    #     }
+    # }
+
     @product = Product.new(product_params)
 
-    # Set status based on price
     if @product.price > 10000
       render json: { error: "Price exceeds the maximum allowed amount of $10,000" }, status: :unprocessable_entity
       return
@@ -35,7 +39,6 @@ class Api::ProductsController < ApplicationController
       @product.status = 'active'
     end
 
-    # Check if the product is valid and save it
     if @product.save
       render json: @product, status: :created
     else
