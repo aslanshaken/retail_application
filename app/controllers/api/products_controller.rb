@@ -1,5 +1,5 @@
 class Api::ProductsController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [:create, :update, :destroy]
+  skip_before_action :verify_authenticity_token, only: [:create, :update, :destroy, :approve, :reject]
   before_action :set_product, only: [:update, :destroy]
 
   def index
@@ -83,10 +83,10 @@ class Api::ProductsController < ApplicationController
   end
 
   def approve
-    # Find the approval queue item by ID
-    approval_queue_item = ApprovalQueue.find(params[:approvalId])
+    # Put /api/products/:id/approve
 
-    # Update the approval status of the queue item and remove it from the queue
+    approval_queue_item = ApprovalQueue.find(params[:id])
+
     if approval_queue_item.update(approval_status: 'approved')
       approval_queue_item.destroy
       head :no_content
