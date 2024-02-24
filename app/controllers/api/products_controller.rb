@@ -95,6 +95,18 @@ class Api::ProductsController < ApplicationController
     end
   end
 
+  def reject
+    # Put http://localhost:3000/api/products/:id/reject
+    
+    @approval_queue_item = ApprovalQueue.find(params[:id])
+
+    @approval_queue_item.update(approval_status: 'rejected')
+
+    render json: { message: "Product rejected successfully" }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Approval queue item not found" }, status: :not_found
+  end
+
   private
 
   def set_product
