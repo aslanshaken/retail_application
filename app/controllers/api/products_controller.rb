@@ -82,6 +82,19 @@ class Api::ProductsController < ApplicationController
     end
   end
 
+  def approve
+    # Find the approval queue item by ID
+    approval_queue_item = ApprovalQueue.find(params[:approvalId])
+
+    # Update the approval status of the queue item and remove it from the queue
+    if approval_queue_item.update(approval_status: 'approved')
+      approval_queue_item.destroy
+      head :no_content
+    else
+      render json: approval_queue_item.errors, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_product

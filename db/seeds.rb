@@ -1,11 +1,19 @@
 # db/seeds.rb
 
-# Clear existing products
 Product.destroy_all
 
-# Seed data for products
-Product.create(name: "Product 1", price: 19.99, status: "active")
-Product.create(name: "Product 2", price: 29.99, status: "active")
-Product.create(name: "Product 3", price: 2.49, status: "active")
+10.times do
+  Product.create!(
+    name: Faker::Commerce.product_name,
+    price: Faker::Commerce.price(range: 0..100.0, as_string: false),
+    status: ['active', 'inactive'].sample
+  )
+end
 
-
+10.times do
+  ApprovalQueue.create!(
+    product_id: Faker::Number.unique.between(from: 1, to: 20),
+    request_date: Faker::Time.backward(days: 30),
+    approval_status: ['pending', 'approved', 'rejected'].sample
+  )
+end
